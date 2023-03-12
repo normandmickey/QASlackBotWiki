@@ -1,0 +1,15 @@
+*__pycache__/
+*.pyc
+*.pyo
+*.swp
+.DS_Store
+.env
+venv/
+wiki
+wiki_docs.index
+wii_faiss_store.pkl
+dist/
+build/
+*.egg-info/
+.mypy_cache/
+__pycache__/
