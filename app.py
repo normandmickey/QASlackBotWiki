@@ -1,48 +1,90 @@
 import os
+import json
+from dotenv import load_dotenv
 from slack_bolt import App
 from slack_bolt.adapter.socket_mode import SocketModeHandler
-from langchain import OpenAI, ConversationChain, LLMChain, PromptTemplate
+from langchain import OpenAI, ConversationChain, LLMChain 
 from langchain.chains.conversation.memory import ConversationalBufferWindowMemory
+from langchain.chains import LLMChain, VectorDBQAWithSourcesChain
+import faiss
+import pickle
+
+load_dotenv()
+
+SLACK_BOT_TOKEN = os.getenv('SLACK_BOT_TOKEN')
+SLACK_APP_TOKEN = os.getenv('SLACK_APP_TOKEN')
+OPENAI_API_TOKEN = os.getenv('OPENAI_API_TOKEN')
+DOCUMENTS_FOLDER = os.getenv('DOCUMENTS_FOLDER')
+MEDIAWIKI_BASE_URL = os.getenv('MEDIAWIKI_BASE_URL')
+
+# Load the LangChain.
+index = faiss.read_index("wiki_docs.index")
+
+with open("wiki_faiss_store.pkl", "rb") as f:
+    store = pickle.load(f)
+
+store.index = index
 
 # Initializes your app with your bot token and socket mode handler
-app = App(token=os.environ.get("SLACK_BOT_TOKEN"))
+app = App(token=SLACK_BOT_TOKEN)
 
-#Langchain implementation
-template = """Assistant is a large language model trained by OpenAI.
-
-    Assistant is designed to be able to assist with a wide range of tasks, from answering simple questions to providing in-depth explanations and discussions on a wide range of topics. As a language model, Assistant is able to generate human-like text based on the input it receives, allowing it to engage in natural-sounding conversations and provide responses that are coherent and relevant to the topic at hand.
-
-    Assistant is constantly learning and improving, and its capabilities are constantly evolving. It is able to process and understand large amounts of text, and can use this knowledge to provide accurate and informative responses to a wide range of questions. Additionally, Assistant is able to generate its own text based on the input it receives, allowing it to engage in discussions and provide explanations and descriptions on a wide range of topics.
-
-    Overall, Assistant is a powerful tool that can help with a wide range of tasks and provide valuable insights and information on a wide range of topics. Whether you need help with a specific question or just want to have a conversation about a particular topic, Assistant is here to assist.
-
-    {history}
-    Human: {human_input}
-    Assistant:"""
-
-prompt = PromptTemplate(
-    input_variables=["history", "human_input"], 
-    template=template
-)
-
-
-chatgpt_chain = LLMChain(
-    llm=OpenAI(temperature=0), 
-    prompt=prompt, 
-    verbose=True, 
-    memory=ConversationalBufferWindowMemory(k=2),
-)
+chatgpt_chain = VectorDBQAWithSourcesChain.from_chain_type(OpenAI(temperature=0.2, max_tokens=300), chain_type="stuff", vectorstore=store)
 
 #Message handler for Slack
 @app.message(".*")
 def message_handler(message, say, logger):
-    print(message)
-    
-    output = chatgpt_chain.predict(human_input = message['text'])   
-    say(output)
+    json_dict = chatgpt_chain({"question": message['text']}, return_only_outputs=False)
+    json_str = json.dumps(json_dict)
+    data = json.loads(json_str)
+    sources=[]
+    if "," in data['sources']:
+       sources = data['sources'].split(", ",2)
+       source = sources[0]
+       source2 = sources[1]
+    else:
+       source = data['sources']
+       source2 = ""
+    if "I don't know" in data['answer']:
+       source = ""
+       source2 = ""
 
+    if "title=" in source:
+       source = source.replace("title=","*")
+       source = source.replace(".txt","*")
+       re=source.split("*")
+       res=re[1]
+       source = "Source: " + MEDIAWIKI_BASE_URL + "/index.php?title=" + res
+    else:
+       source = source.replace("wiki/","*")
+       source = source.replace(".txt","*")
+       re=source.split("*")
+       try: res=re[1]
+       except: res=""
+       if res=="":
+          source = ""
+       else:
+          source = "Source: " + DOCUMENTS_FOLDER + res
+
+    if "title=" in source2:
+       source2 = source2.replace("title=","*")
+       source2 = source2.replace(".txt","*")
+       re=source2.split("*")
+       res=re[1]
+       source2 = "Source2: " + MEDIAWIKI_BASE_URL + "/index.php?title=" + res
+    else:
+       source2 = source2.replace("wiki/","*")
+       source2 = source2.replace(".txt","*")
+       re=source2.split("*")
+       try: res=re[1]
+       except: res=""
+       if res=="":
+          source2 = ""
+       else:
+          source2 = "Source2: " + DOCUMENTS_FOLDER + res
+
+    say("Answer: " + data['answer'] + "\n" + source + "\n" + source2)
 
 
 # Start your app
 if __name__ == "__main__":
-    SocketModeHandler(app, os.environ["SLACK_APP_TOKEN"]).start()
+    SocketModeHandler(app, SLACK_APP_TOKEN).start()
