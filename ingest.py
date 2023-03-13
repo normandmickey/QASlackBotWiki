@@ -145,7 +145,7 @@ for file in files:
     with open(filename, 'w') as f:
         f.write(text)
 
-# Here we load in the data in the format that Notion exports it in.
+# Here we load in the data from the txt files.
 ps = list(Path("wiki/").glob("**/*.txt"))
 
 data = []

@@ -13,7 +13,12 @@ To use the QA Slack Bot Wiki, the following environment variables need to be set
 - SLACK_BOT_TOKEN: Token for the Slack Bot.
 - SLACK_APP_TOKEN: Token for the Slack app.
 - OPENAI_API_TOKEN: Token for OpenAi
-- 
+- MEDIAWIKI_BASE_URL: Base URL for MediaWiki site (ie. https://wiki.yoursite.com). 
+- MEDIAWIKI_LOGIN_URL: Login page for your MediaWiki site. 
+- MEDIAWIKI_ALLPAGES_URL: 
+- MEDIAWIKI_USERNAME:
+- MEDIAWIKI_PASSWORD:
+- DOCUMENTS_FOLDER: 
 
 ## Installation
 Requires Python3.10 or higher
