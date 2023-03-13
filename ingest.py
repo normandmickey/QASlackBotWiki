@@ -1,4 +1,4 @@
-"""This is the logic for ingesting Notion data into LangChain."""
+"""This is the logic for ingesting MediaWiki Site into LangChain."""
 import os
 from dotenv import load_dotenv
 from pathlib import Path
@@ -129,7 +129,7 @@ for link in links:
                         df = df_copy.copy()
                     df.to_csv(("wiki/table_" + url3.replace("/", "") + ".txt"), sep=" ", mode='w', index=False)
 
-# Here we confert pdf files to text
+# Here we convert pdf files to text
 files = list(Path("wiki/").glob("**/*.pdf"))
 for file in files:
     filename = str(file) + ".txt"
