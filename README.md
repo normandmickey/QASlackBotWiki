@@ -32,23 +32,21 @@ pip install -r requirements.txt
 cp env.example .env
 ```
 
-1. Set your OPENAI_API_TOKEN in the .env file.
+1. Set your OPENAI_API_TOKEN in the .env file. 
 
-2. 
+2. Create new Slack App - https://api.slack.com
 
-3. Create new Slack App - https://api.slack.com
-
-4. Click on "Basic Information"
+3. Click on "Basic Information"
    - Click on "Generate Token and Scopes"
      - Token Name = "App Token"
      - App Scope = "connections:write"
 
    - Copy "App Token" and paste it into your .env file as "SLACK_APP_TOKEN". 
 
-5. Click on "Socket Mode"
+4. Click on "Socket Mode"
    - Click on "Enable"
 
-6. Click on "OAuth & Permissions" and add the following permissions. 
+5. Click on "OAuth & Permissions" and add the following permissions. 
    - app_mentions:read
    - chat:write
    - chat:write.public
@@ -56,29 +54,29 @@ cp env.example .env
 
    - Copy "Bot User OAuth Token" and paste it into your .env file as "SLACK_BOT_TOKEN". 
 
-7. Click on "App Home" and make sure "Messages Tab" is enabled and check the box for "Allow users to send Slash commands and messages from the messages tab". 
+6. Click on "App Home" and make sure "Messages Tab" is enabled and check the box for "Allow users to send Slash commands and messages from the messages tab". 
 
-8. Click on "Event Subscriptions" then "Subscribe to Bot Events" and add the following events. 
+7. Click on "Event Subscriptions" then "Subscribe to Bot Events" and add the following events. 
     - app_mention
     - message.im
 
-9. Install App into your Slack. 
+8. Install App into your Slack. 
 
-10. Create a directory called "wiki". 
+9. Create a directory called "wiki". 
 ```
 mkdir wiki
 ```
 
-11. Upload or copy your .pdf or .docx files to the "wiki" folder. 
+10. Upload or copy your .pdf or .docx files to the "wiki" folder. 
 
-12. Run the following commands.
+11. Run the following commands.
  
    ```
    python ingest.py
    python app.py
    ```
 
-13. Visit your Slack and send direct message to your bot. 
+12. Visit your Slack and send direct message to your bot. 
 
-14. Your vector database needs to be re-indexed each time you add or remove documents from your docs folder. To do this simply run 
+13. Your vector database needs to be re-indexed each time you add or remove documents from your docs folder. To do this simply run 
 ```python ingest.py```. 
