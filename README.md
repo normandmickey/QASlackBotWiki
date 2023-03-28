@@ -58,23 +58,27 @@ cp env.example .env
 
 7. Click on "App Home" and make sure "Messages Tab" is enabled and check the box for "Allow users to send Slash commands and messages from the messages tab". 
 
-8. Install App into your Slack. 
+8. Click on "Event Subscriptions" then "Subscribe to Bot Events" and add the following events. 
+    - app_mention
+    - message.im
+
+9. Install App into your Slack. 
 
 10. Create a directory called "wiki". 
 ```
 mkdir wiki
 ```
 
-9. Upload or copy your .pdf or .docx files to the "wiki" folder. 
+11. Upload or copy your .pdf or .docx files to the "wiki" folder. 
 
-10. Run the following commands.
+12. Run the following commands.
  
    ```
    python ingest.py
    python app.py
    ```
 
-11. Visit your Slack and send direct message to your bot. 
+13. Visit your Slack and send direct message to your bot. 
 
-12. Your vector database needs to be re-indexed each time you add or remove documents from your docs folder. To do this simply run 
+14. Your vector database needs to be re-indexed each time you add or remove documents from your docs folder. To do this simply run 
 ```python ingest.py```. 
